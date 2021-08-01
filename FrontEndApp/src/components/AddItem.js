@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import axios from 'axios'
 import {render} from 'react-dom';
 import { useHistory } from "react-router-dom"; 
-import ViewTask from './ViewTask'
+
 
 
 
@@ -19,22 +19,20 @@ export default function Task(props) {
   const [newName, setNewName] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const taskId = useFormInput(0);
-  const taskname = useFormInput('');
+  const itemId = useFormInput('');
+  const itemPrice = useFormInput('');
   const history = useHistory();
-  console.log('props in task =',props)
+  
 
   const Addtask = async() => {
     console.log ('Adding Task for new User')    
     setError(null);
-    setLoading(true); 
-    const username = props.location.state.username
-    await axios.post('http://localhost:8000/task/AddNew',         
-        { username: username, taskId: taskId.value,taskName:taskname.value}).then(async(response) => {
+    setLoading(true);    
+    await axios.post('http://localhost:8000/item/AddNew',         
+        {itemId: itemId.value,itemPrice:itemPrice.value}).then(async(response) => {
         console.log(response)
       setLoading(false) 
-      await axios.post('http://localhost:8000/task/list',         
-          { username: username}).then(response => {
+      await axios.post('http://localhost:8000/item/list').then(response => {
           console.log(response)           
         }).catch(error => {
           setLoading(false);
@@ -44,7 +42,7 @@ export default function Task(props) {
         let data = {
           data:response.data.data
       }
-        history.push("/viewtask",{username:username,data:data})   
+        history.push("/viewtask",{data:data})   
        //history.push("/viewtask",{username:username})      
     }).catch(error => {
       setLoading(false);
@@ -52,28 +50,29 @@ export default function Task(props) {
        setError("Something went wrong. Please try again later.");
     });
   }
+ 
 
   const newTaskTemplate = (
     <div>
-      Add New Task<br /><br />
+      <h1>Add New Item</h1><br /><br />
       <div>
-        Task Id<br />
-        <input type="number" {...taskId} />
+        Item Id<br />
+        <input type="Text" {...itemId} />
       </div>
       <div style={{ marginTop: 10 }}>
-        Task Name<br />
-        <input type="Text" {...taskname} />
+        Item Price<br />
+        <input type="Number" {...itemPrice} />
       </div>
       {error && <><small style={{ color: 'red' }}>{error}</small><br /></>}<br />
-      <input type="button" value={loading ? 'Loading...' : 'AddTask'} onClick={Addtask} disabled={loading} /><br />            
+      <input type="button" value={loading ? 'Loading...' : 'Add Item'} onClick={Addtask} disabled={loading} /><br />            
     </div>
   )
 
-  if (props && props.location && props.location.state && props.location.state.signup && props.location.state.username ) {
+  //if (props && props.location && props.location.state && props.location.state.isLoggedIn && props.location.state.username ) {
     return (newTaskTemplate)
-  } else {
+  /*} else {
     return (<div>User Must be logged in to view this page</div>);
-  }
+  }*/
 
 }
 

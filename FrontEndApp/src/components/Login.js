@@ -1,10 +1,89 @@
 
-import React, { useState } from 'react';
+import React, { Component } from "react";
 import axios from 'axios';
-import Task from './Task'
-import { useHistory } from "react-router-dom";  
 
-function Login(props) {
+
+class Login extends Component {
+  constructor(props) {
+    super(props)
+    this.state= {
+      error : '',
+      username:'',
+      password:'',
+      loading:false
+    }   
+    this.handleLogin = this.handleLogin.bind(this);
+    this.handleSignup = this.handleSignup.bind(this);  
+    this.setusername = this.setusername.bind(this);
+    this.setpassword =  this.setpassword.bind(this); 
+} 
+
+setusername = (emailid) => {
+  this.setState({username:emailid})  
+}
+
+setpassword = (pwd) => {
+  this.setState({password:pwd})  
+}
+
+  handleLogin = async(e) => { 
+    try {
+      this.setState({
+        loading:true}
+        )         
+        await axios.post('http://localhost:8000/users/login',{ username: this.state.username, password: this.state.password })
+        
+        if (this.state.username.toString().toLowerCase() === 'marketing') {
+          this.props.history.push('/marketing',{username: this.state.username,isloggedIn:true});
+        }else {
+          this.props.history.push('/viewtask',{username: this.state.username,isloggedIn:true});
+        }
+         
+      } catch(error) {
+        this.state.error ="Error in Login..Please try again later"        
+    }
+  }
+
+  handleSignup = async(e) => {
+    try {
+      this.setState({
+        loading:true}
+        )      
+      await axios.post('http://localhost:8000/users/SignUpUser', 
+      { username: this.state.username, password: this.state.password })
+      if (this.state.username.toLowerCase === 'marketing') {
+        this.props.history.push('/marketingpage',{username: this.state.username,isloggedIn:true})
+      } else {
+        this.props.history.push('/task',{username: this.state.username,isloggedIn:true})
+      }
+      
+    } catch(err) {
+      this.setState({
+        error:"Error in SignUp..Please try again later"
+      })      
+    }
+
+
+  }
+  render() { 
+    return ( 
+      <div>
+      <h1>Login</h1><br/>              
+          Name:
+          <input type="email" value={this.state.username} onChange={(e) =>this.setusername(e.target.value)} /><br/>
+           Password:
+          <input type="password" value={this.state.password} onChange={(e) =>this.setpassword(e.target.value)}  /><br/>
+          <input type="button" value="Login" onClick={(e) =>this.handleLogin(e)} /><br/>
+          <input type="button" value="Create New User" onClick={(e) =>this.handleSignup(e)} /> 
+          <div style={{ color: 'red' }}>{this.state.error}</div>     
+      </div>      
+      );
+  }
+}
+ 
+export default Login;
+
+/*function Login(props) {
   const [loading, setLoading] = useState(false);
   const username = useFormInput('');
   const password = useFormInput('');
@@ -13,33 +92,7 @@ function Login(props) {
   
 
   // handle button click of login form
-  const handleLogin = async() => { 
-    try {
-        setError(null);
-        setLoading(true);    
-        let response =axios.post('http://localhost:8000/users/login',{ username: username.value, password: password.value })
-        history.push('/viewtask',{username:username.value}); 
-      } catch(error) {
-        setLoading(false);
-        setError("Something went wrong. Please try again later.");
-    }
-  }
 
-  const handleSignup = () => {
-    console.log ('SignUp User')    
-    setError(null);
-    setLoading(true);  
-    
-    axios.post('http://localhost:8000/users/SignUpUser', 
-    { username: username.value, password: password.value }).then(response => {
-        console.log(response)
-      setLoading(false);
-      history.push('/task',{username: username.value,signup:true})
-    }).catch(error => {
-      setLoading(false);
-      setError("Something went wrong. Please try again later.");
-    });
-  }
 
   return (
     <div>
@@ -71,4 +124,4 @@ const useFormInput = initialValue => {
   }
 }
 
-export default Login;
+export default Login;*/
